@@ -1,0 +1,78 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sereni – AI-Driven Sentiment Chatbot</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="moon"></div>
+  <div class="sparkles"></div>
+  <main class="shell">
+    <header class="brand">
+      <div class="logo">☾</div>
+      <div>
+        <h1>Sereni</h1>
+        <p>Empathetic AI chat with real-time sentiment and safety awareness.</p>
+      </div>
+    </header>
+
+    <section class="chat-card">
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="typing" id="typingIndicator">
+        <span></span><span></span><span></span>
+      </div>
+      <form class="input-row" id="chatForm">
+        <input type="text" id="messageInput" placeholder="Type how you feel…" autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+      <div class="emergency-panel">
+        <div class="tooltip" role="status">If you're in immediate danger, contact local emergency services.</div>
+        <button class="emergency-btn" data-target="callPanel">Emergency Call</button>
+        <div class="emergency-dropdown" id="callPanel" aria-hidden="true">
+          <div class="label">Call</div>
+          <div class="value">022 2754 6669</div>
+        </div>
+        <button class="emergency-btn" data-target="textPanel">Emergency Text</button>
+        <div class="emergency-dropdown" id="textPanel" aria-hidden="true">
+          <div class="label">Text</div>
+          <div class="value">85258</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="groundModal" aria-hidden="true" role="dialog" aria-labelledby="groundTitle">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card" role="document">
+      <button class="modal-close" id="closeModal" aria-label="Close grounding exercise">×</button>
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">Grounding Exercise</p>
+          <h2 id="groundTitle">5-4-3-2-1 Reset</h2>
+        </div>
+        <div class="badge" id="stepBadge">Step 1 of 5</div>
+      </div>
+      <div class="modal-body">
+        <div class="motivation" id="motivationBox">Take a slow breath. We'll notice your surroundings together.</div>
+        <div class="prompt" id="groundPrompt">Name five things you can see.</div>
+        <div class="scroll-box" id="responseList" aria-live="polite"></div>
+        <form class="ground-form" id="groundForm">
+          <label class="sr-only" for="groundInput">Your response</label>
+          <input id="groundInput" autocomplete="off" placeholder="List items separated by commas" required />
+          <button type="submit">Next</button>
+        </form>
+      </div>
+      <div class="success" id="groundSuccess" hidden>
+        <div class="teal-circle">✓</div>
+        <h3>Grounding completed</h3>
+        <p>Nice work slowing things down. Keep breathing at your own pace.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/app.js"></script>
+</body>
+</html>

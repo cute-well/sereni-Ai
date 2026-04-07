@@ -1,0 +1,41 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sereni – Login</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body class="login-body">
+  <div class="bg-gradient"></div>
+  <div class="moon"></div>
+  <div class="sparkles"></div>
+  <main class="shell">
+    <section class="login-card" aria-labelledby="loginTitle">
+      <div class="login-header">
+        <div class="logo">☾</div>
+        <div>
+          <p class="eyebrow">Welcome back</p>
+          <h1 id="loginTitle">Sign in to Sereni</h1>
+          <p class="muted">Secure access with session protection & CSRF.</p>
+        </div>
+      </div>
+      <form method="POST" class="login-form">
+        {{ form.hidden_tag() }}
+        <label> Email {{ form.email(class_="field") }} </label>
+        <label> Password {{ form.password(class_="field", type="password") }} </label>
+        <button type="submit" class="primary">Login</button>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-area">
+              {% for category, msg in messages %}
+                <div class="flash {{ category }}">{{ msg }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+      </form>
+    </section>
+  </main>
+</body>
+</html>
