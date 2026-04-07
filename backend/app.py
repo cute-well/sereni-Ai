@@ -10,7 +10,7 @@ from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from config import get_config
-from database import db, init_db
+from database import get_db, init_db
 from .extensions import csrf, login_manager
 
 

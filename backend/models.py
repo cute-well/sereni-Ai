@@ -1,79 +1,53 @@
-"""Database models for Sereni."""
+﻿"""Simple data models backed by MongoDB."""
 
 from __future__ import annotations
 
-from datetime import datetime
+from dataclasses import dataclass
+from typing import Any, Optional
 
+from bson import ObjectId
 from flask_login import UserMixin
-from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text
-from sqlalchemy.orm import relationship
-
-from database import db
-
-MessageRole = Enum("user", "assistant", "system", name="message_role")
-RiskLevel = Enum("low", "moderate", "high", name="risk_level")
 
 
-class User(UserMixin, db.Model):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True, nullable=False, index=True)
-    password_hash = Column(String(255), nullable=False)
-    full_name = Column(String(120), nullable=False)
-    is_active = Column(db.Boolean, default=True, nullable=False)
-    is_admin = Column(db.Boolean, default=False, nullable=False)
-    failed_logins = Column(Integer, default=0, nullable=False)
-    last_login_at = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
-    )
-
-    messages = relationship("Message", back_populates="user", cascade="all, delete-orphan")
-    risk_events = relationship(
-        "RiskEvent", back_populates="user", cascade="all, delete-orphan"
-    )
-
-    def __repr__(self) -> str:  # pragma: no cover - repr helper
-        return f"<User {self.email}>"
+def _obj_id(value: str | ObjectId) -> ObjectId:
+    return value if isinstance(value, ObjectId) else ObjectId(value)
 
 
-class Message(db.Model):
-    __tablename__ = "messages"
+@dataclass
+class User(UserMixin):
+    id: ObjectId
+    email: str
+    password_hash: str
+    full_name: str
+    is_active: bool = True
+    is_admin: bool = False
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    role = Column(MessageRole, nullable=False)
-    content = Column(Text, nullable=False)
-    sentiment = Column(String(32), nullable=True)
-    sentiment_score = Column(Numeric(5, 4), nullable=True)
-    risk_score = Column(Numeric(5, 4), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    def get_id(self) -> str:
+        return str(self.id)
 
-    user = relationship("User", back_populates="messages")
-    risk_event = relationship(
-        "RiskEvent", back_populates="message", uselist=False, cascade="all, delete-orphan"
-    )
-
-    def __repr__(self) -> str:  # pragma: no cover - repr helper
-        return f"<Message {self.id} role={self.role}>"
+    @classmethod
+    def from_doc(cls, doc: dict[str, Any]) -> "User":
+        return cls(
+            id=doc["_id"],
+            email=doc["email"],
+            password_hash=doc["password_hash"],
+            full_name=doc.get("full_name", ""),
+            is_active=doc.get("is_active", True),
+            is_admin=doc.get("is_admin", False),
+        )
 
 
-class RiskEvent(db.Model):
-    __tablename__ = "risk_events"
+# DAO helpers ---------------------------------------------------------------
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    message_id = Column(Integer, ForeignKey("messages.id", ondelete="SET NULL"))
-    level = Column(RiskLevel, nullable=False)
-    risk_score = Column(Numeric(5, 4), nullable=False)
-    trigger = Column(String(120), nullable=False)
-    notes = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+def find_user_by_email(db, email: str) -> Optional[User]:
+    doc = db.users.find_one({"email": email.lower()})
+    return User.from_doc(doc) if doc else None
 
-    user = relationship("User", back_populates="risk_events")
-    message = relationship("Message", back_populates="risk_event")
 
-    def __repr__(self) -> str:  # pragma: no cover - repr helper
-        return f"<RiskEvent {self.id} level={self.level}>"
+def find_user_by_id(db, user_id: str) -> Optional[User]:
+    try:
+        oid = _obj_id(user_id)
+    except Exception:
+        return None
+    doc = db.users.find_one({"_id": oid})
+    return User.from_doc(doc) if doc else None

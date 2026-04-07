@@ -15,15 +15,10 @@ class BaseConfig:
     SESSION_COOKIE_SAMESITE = "Lax"
 
     # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        f"sqlite:///{os.path.join(os.path.dirname(__file__), 'instance', 'sereni.db')}",
+    MONGO_URI = os.getenv(
+        "MONGO_URI",
+        "mongodb://localhost:27017/sereni",
     )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_pre_ping": True,
-        "pool_recycle": 1800,
-    }
 
     # JWT / Auth (future-proof for upgrade)
     ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)

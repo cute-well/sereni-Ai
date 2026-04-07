@@ -1,17 +1,22 @@
-"""Database initialization and session utilities."""
+﻿"""MongoDB connection helper."""
 
 from __future__ import annotations
 
-from flask_sqlalchemy import SQLAlchemy
+from flask import current_app
+from pymongo import MongoClient
 
-# Global SQLAlchemy instance to be initialized in the application factory
-# Keeping the instance here avoids circular imports across blueprints.
-db = SQLAlchemy()
+_client: MongoClient | None = None
 
 
 def init_db(app) -> None:
-    """Bind the SQLAlchemy instance to the app and create tables if needed."""
-    db.init_app(app)
+    """Initialize Mongo client and attach to Flask app."""
+    global _client
+    if _client is None:
+        _client = MongoClient(app.config["MONGO_URI"])
+    app.mongo_client = _client
+    app.db = _client.get_default_database()
 
-    with app.app_context():
-        db.create_all()
+
+def get_db():
+    """Return the current database handle."""
+    return current_app.db
